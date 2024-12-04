@@ -1,0 +1,169 @@
+\documentclass{scrartcl}
+\usepackage{ngerman}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{enumitem}
+%\usepackage[amssymb, textstyle]{SIunits}
+\geometry{top=25mm,bottom=25mm,left=25mm,right=25mm}
+\pagestyle{empty}
+\title{Physik im Weltall -- Computersimulation von Planetenbewegungen}
+\date{}
+\begin{document}
+\begin{center}
+    {\huge\textbf{\sffamily Physik im Weltall:\\ Computersimulation von Planetenbewegungen}\\[1cm]}
+\end{center}
+Diese Simulation erlaubt das Erstellen von Himmelskörpern und die Simulation ihrer durch Gravitation verbundenen Bewegungen.
+Dabei werden die Himmelskörper als Punktmassen modelliert, deren Wechselwirkungen allein durch die Gravitationskraft bestimmt werden.
+Ziel dieses Workshops ist es, sowohl das Gravitationsgesetz als auch die numerische Lösung von Problemen (und deren Grenzen) besser zu verstehen.
+Im ersten Teil dieser Anleitung werden die verschiedenen Programmbestandteile erklärt, während im zweiten Teil Arbeitshinweise gegeben werden.
+\\[0.5cm]
+\begin{center}
+        {\Large\textbf{\sffamily Erklärung der Programmbestandteile}}\\[.5cm]
+\end{center}
+    %\section*{Wichtige Befehle}
+        \lstset{basicstyle=\texttt, tabsize=2, morekeywords=Programmname, keywordstyle=\textsc}% backgroundcolor=\color{yellow!15!white}, frame=single}
+
+        \begin{itemize}[leftmargin=*]
+            \setlength\itemsep{0em}
+            \item \textbf{\color{red}Wichtiger Hinweis:} Zahlen in englischer, wissenschaftlicher Notation: $149,6\cdot10^9 = 149.6\mathrm{e}9$
+            \item Im linken Bereich der grafischen Oberfläche kannst du diverse Einstellungen vornehmen und die Geschwindigkeiten der Himmelskörper während der Simulation ablesen.
+            \item Im rechten Bereich der grafischen Oberfläche werden dir die Himmelskörper angezeigt, sobald die Simulation gestartet ist.
+            \item In der oberen Leiste kannst du die Simulation steuern.
+            \item Einstellungen im linken Bereich:
+                \begin{itemize}
+                    \item Numerik:
+                    \begin{itemize}
+                        \item \textbf{Timestep:} Zeitschritt in Tagen; Schrittweite, in der die neuen Positionen berechnet werden (z.B.: alle $0,001$ Tage wird eine neue Position berechnet).
+                        \item \textbf{Solver:} Art der numerischen Lösungsmethode:
+                        \begin{itemize}
+                            \item Euler: Euler Verfahren; Simple Methode; Feinerer Zeitschritt notwendig
+                            \item RK4: Runge Kutta 4. Ordnung; Komplexere Methode; Größerer Zeitschritt möglich
+                        \end{itemize}
+                    \end{itemize}
+                    \item Grafik:
+                    (Diese Einstellungen kannst du auch ändern, wenn die Simulation gerade läuft.)
+                    \begin{itemize}
+                    \item \textbf{Show object trajectories as circles/lines:} Wenn einer dieser Haken gesetzt ist, bekommst du angezeigt welchen Weg die Himmelskörper zurückgelegt haben. 
+                    \item \textbf{Planet image radius:} Hier kannst du einstellen, wie groß die Himmelskörper auf der rechten Seite angezeigt werden. 
+                    Da die Himmelskörper als Punktmassen modelliert werden, spielt die Größe keine Rolle und alle Himmelskörper werden gleich groß angezeigt.
+                    \item \textbf{Follow object:} Hier kannst du auswählen, ob das Koordinatensystem sich mit einem Objekt bewegen soll.
+                    (Mit "`Strg+g"' kannst du die Gitterlinien im Plot entfernen oder wieder hinzufügen.)
+                    \end{itemize}
+                    \item \textbf{Objects:} Hier kannst du einstellen mit welchen Himmelskörpern gerechnet werden soll. Du kannst aus voreingestellten Himmelskörpern wählen oder dir eigene erstellen. 
+                    Mit "`+"' fügst du ein Objekt hinzu, mit "`{\sffamily x}"' löschst du es.\\
+                    Über das Feld "`Load configuration"' kannst du voreingestellte Sets an Himmelskörpern auswählen. Bestätige deine Auswahl dafür mit dem "`Load"'-Button.
+                \end{itemize}
+            \item Rechter Bereich:  
+                Die Achsen sind in der Einheit Kilometer angegeben. 
+                Du kannst in diesem Fenster mit dem Mausrad zoomen und durch klicken und ziehen die Karte bewegen.
+                Oben links werden die vergangenen Tage angezeigt.
+            \item Funktion der oberen Leiste:
+                \begin{itemize}
+                    \item \textbf{Start simulation/Restart simulation:} Startet die Berechnung mit den Numerik- und Objekteinstellungen, die im linken Bereich gesetzt wurden.
+                    Wenn diese geändert wurden, muss dieser Button erneut gedrückt werden, um die Berechnung zu starten.
+                    \item \textbf{Reset settings:} Setzt alle Einstellungen auf die Starteinstellungen zurück.
+                    \item \textbf{Pause/Continue:} Pausiert die Anzeige/ Lässt die Anzeige weiterlaufen
+                    \item \textbf{Updates per second:} Gibt an, wie oft pro Sekunde die Anzeigen aktualisiert werden. 
+                            Wenn du die Zahl verringerst, kannst du schnelle Veränderungen gut beobachten.
+                    \item \textbf{Days per update:} Gibt an um wie viele Tage bei einer Aktualisierung der Anzeige gesprungen wird.
+                            Wenn du die Zahl erhöhst, laufen langsame Vorgänge schneller ab.
+                \end{itemize}
+        \end{itemize}
+        
+        \vspace{1cm}
+        {\large\textbf{\sffamily Bei Problemen und Fragen scheut euch nicht, bei uns nachzufragen!}}\\[3cm]
+        \vfill
+        \begin{center}
+        \noindent\textbf{Besuche gerne unsere \href{https://www.physik.uni-kl.de/rethfeld/}{Homepage}, wenn dir dieser Workshop gefällt: \\
+        Dort findest du das Programm zum selbst installieren.\\}
+        \includegraphics*[width=.2\textwidth]{qr_rethfeld.png}\\
+        \vspace{2cm}
+        \textbf{Dir gefällt es hier sehr gut:\\ Dann schreib dich ein für ein Physik-Studium an der RPTU.\\
+        \url{https://physik.rptu.de/studium}}\\
+        \includegraphics*[width=.2\textwidth]{qr_studium.png}
+        \end{center}
+        \newpage
+    
+\begin{center}
+    {\huge\textbf{\sffamily Physik im Weltall:\\ Computersimulation von Planetenbewegungen}}\\[.75cm]
+        {\Large\textbf{\sffamily Arbeitshinweise}}
+\end{center}
+
+        Kommt gerne auf uns zu, wenn ihr über bestimmte Aufgaben mit uns diskutieren möchtet.\\
+        \subsection*{Teste die Numerik}
+        Unser Programm erlaubt die Auswahl von zwei verschiedenen Lösungsverfahren:\\
+        Dem sehr simplen Euler Verfahren und dem komplexeren Runge Kutta 4 (RK4).\\
+
+        \noindent	Wähle Konfiguration "`sun\_earth"', Verfahren "`Euler"' und einen Zeitschritt von $3$ Tagen.
+            \begin{itemize}
+                \item Beobachte die Bahn der Erde. Was passiert, wenn du den Zeitschritt kleiner machst oder die Methode auf "`RK4"' umstellst? 
+                \item Kannst du erklären, warum die Bahn bei den gegebenen Einstellungen so aussieht?
+                \item Welche Vor- und Nachteile haben die verschiedenen Zeitschritte und Lösungsverfahren?
+            \end{itemize}
+        \subsection*{Zwei-Körper-Problem}
+        Die Bewegung von zwei Massen, die sich unter dem Einfluss einer zentralen Kraft befinden (z.\,B. Gravitationskraft), kann mathematisch exakt vorhergesagt werden.
+        Kleine Änderungen an den Startpositionen und Startgeschwindigkeiten der Massen führen zu kleinen Änderungen der Bewegungskurve.
+        Solche Bahnen werden stabil genannt\footnote{In der Simulation kann es aufgrund von numerischen Fehlern zu unerwarteten Bewegungen kommen.}.\\
+
+        \noindent Mit den Konfigurationen "`sun\_earth"', "`two\_suns"' und "`sun\_catches\_planet"' kannst du die Dynamik von verschiedenen Zwei-Körper-Problemen untersuchen.\\
+        Konfiguration "`sun\_earth"':
+        \begin{itemize}
+            \item Was verändert sich, wenn du die Masse der Erde um 6 Zehnerpotenzen nach oben oder unten veränderst? Warum verhält sich das System jetzt so?
+            \item Warum geben wir immer eine Startgeschwindigkeit an? Was würde passieren, wenn diese Null ist?\footnote{Wenn sich zwei Himmelskörper in unserer Simulation zu nahe kommen, werden diese aufgrund der numerischen Fehler zu stark beschleunigt.}
+        \end{itemize}
+        Konfigurationen "`two\_suns"' und "`sun\_catches\_planet"':
+        \begin{itemize}
+            \item Warum bewegen sich die Massen schneller, wenn sie näher beieinander sind?
+            Kennst du ein Gesetz, welches dieses Verhalten beschreibt?
+            \item Bleiben die Bahnen geschlossen, auch wenn du die Startparameter leicht veränderst?
+        \end{itemize}
+        \vfill\hfill
+        Weiter geht es auf der nächsten Seite\dots\\[1cm]
+        \phantom{A}
+        \newpage
+        \subsection*{Drei-Körper-Problem}
+        Im Gegensatz zum Zwei-Körper-Problem ist bereits ein System von drei oder mehr Körpern nur noch in Ausnahmefällen exakt beschreibbar.
+        In diesen Fällen sind numerische Methoden häufig die einzige Möglichkeit um neue physikalische Erkenntnisse zu erhalten.
+        Drei-Körper-Probleme sind in der Regel instabil.\\
+        
+        \noindent Das bedeutet, dass kleine Variationen der Startwerte zu starken Veränderungen der Bahnkurve führen können.
+        
+        Ein stabiles Drei-Körper-Problem ist in der Konfiguration "`three\_body"' gespeichert.
+        \begin{itemize}
+            \item Verändere die Parameter der Himmelskörper und beobachte, wie sich die Bahnen verändern.
+            \item Füge zu den Konfigurationen der Zwei-Körper-Probleme weitere Himmelskörper hinzu, die die Bahnen der Himmelskörper stark verändern. 
+            \item Lade die Konfiguration "`sun\_earth\_moon"'. Wie könntest du aus der Geschwindigkeit des Modes im Graph unten links, die Geschwindigkeit des Mondes in Relation zur Erde erhalten? 
+            (Tipp: Verringere den Planetenradius auf $8\cdot10^4\,$km und stelle ein, dass das Koordinatensystem der Erde folgt.)
+        \end{itemize}
+        \subsection*{Sonnensystem}
+        Lade die Konfiguration "`solar\_system"'.
+        \begin{itemize}
+            \item Beobachte die Bewegung der Sonne. Was beeinflusst diese hauptsächlich? 
+        \end{itemize}
+        Einige Himmelskörper im äußeren Bereich unseres Sonnensystems weisen ungewöhnliche Bahnen auf.
+        Bisher gibt es keine bestätigte Begründung für diese Bahnen. 
+        Manche Experten vermuten einen neunten Planeten, der bisher noch nicht gefunden wurde.
+        Neuste Berechnungen liefern nun eine andere mögliche Begründung:
+        Vor Milliarden von Jahren könnte eine Sonne an unserem Sonnensystem vorbeigeflogen sein, die die Himmelskörper auf diese Bahnen gebracht hat\footnote{Weitere Informationen findest du über den \href{https://www.fr.de/wissen/simulationen-aus-deutschland-zeigen-planet-koennte-etwas-ganz-anderes-sein-zr-93300641.html}{QR-Code}.}.
+
+        Die Konfiguration "`solar\_system\_disturbed"' erstellt ein solches Sonnensystem mit zweiter Sonne.
+        Im Gegensatz zu der Sonne, die unser Sonnensystem vor Milliarden von Jahren besucht hat, beeinflusst diese Sonne das Sonnensystem deutlich stärker.
+        \begin{itemize}
+            \item Beobachte die Bewegung der Himmelskörper.
+            \item Warum verlassen manche Himmelskörper das Sonnensystem?
+            \item Welche Planeten sind unbeeinflusst von den Geschehnissen und warum?
+        \end{itemize}
+
+        \subsection*{Weitere Planetensysteme}
+        \begin{itemize}
+        \item Lass deiner Kreativität freien Lauf! Erstelle neue Himmelskörper oder ändere die Daten der bereits existierenden ab.
+        \end{itemize}
+        \vfill\hfill
+        \includegraphics[width=.2\textwidth]{qr.png}
+
+\end{document}

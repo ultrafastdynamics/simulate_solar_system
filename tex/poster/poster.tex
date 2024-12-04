@@ -1,0 +1,201 @@
+\documentclass[
+  a0paper,
+  portrait,
+  fontscale=.35 % scales inversely (larger value=smaller font). Default is 0.292. Also affects Title etc!
+  ]{baposterrptu} 
+
+\usepackage{graphicx}             % Include Graphics
+\usepackage{graphbox}	            % Alignment options for graphics
+\usepackage{rptu-poster}          % some commands and color definitions
+\usepackage{qrcode}               % QR Codes
+\usepackage{lipsum}                % Dummy text
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usetikzlibrary{arrows.meta}
+
+\setlist[itemize]{itemsep=.1em, topsep=.5em, leftmargin=2.5em}
+%\renewcommand{\vec}[1]{\overset{\raisebox{-1ex}{$\rightarrow$}}{#1}}
+\newcommand{\myvec}[1]{\vec{#1}}
+\newcommand{\alt}{_\text{alt}}
+\newcommand{\neu}{_\text{neu}}
+\newenvironment{block}[2]
+  {
+    \ifstrempty{#1}{
+      \begin{tcolorbox}[colback=#2!40, sharp corners, rounded corners=southeast, arc=3mm, boxrule=0mm, frame empty]
+    }{
+      \begin{tcolorbox}[title=#1, colbacktitle=#2, coltitle=rptuschwarz, fonttitle=\bfseries, colback=#2!40, sharp corners, rounded corners=southeast, arc=3mm, boxrule=0mm, frame empty]
+    }
+  }
+  {
+    \end{tcolorbox}
+  }
+
+%choose your poster colors here:
+\colorlet{color_background}{apfel}
+\colorlet{color_accents}{petrol}
+% all university colors are available:
+% schiefer, ozean ,nacht ,tag, petrol, pflaume, fuchsia, himbeere, mango
+% ToDo: Automize pair color selection. 
+
+\begin{document}
+\begin{poster}{
+    % here you can add baposter arguments to change the layout e.g. columns=3
+    % this example just uses all the defaults, so no need to specify anything
+    % as I know that people will complain about not enough space and try to
+    % pack stuff clother, here are some example options for that
+    % outercolspacing=2.5em, % adjust the white space on the left/right edges
+    % boxpadding=1.5em,      % adjust the spacing within a box
+    % boxheaderheight=3.5em, % change the header size
+  }
+  %
+  {}% There used to be an top-left logo, but the current corporate design doesn't have that. 
+  %
+  % the poster title/Subtitle. 
+  {Physik im Weltall: \\ \sf Computersimulation von Planetenbewegungen}
+  %
+  % the author(s)
+  {angeboten von der Arbeitsgruppe Rethfeld}
+  %
+  % RPTU Logo top right. Replace with your own logo if required. Note that only RPTU-like Logos are permitted here.
+  {\rptuLogo}
+  %
+  % Footer bottom left. This is supposed to hold contact details, but you can of course put anything here.
+  {
+    \begin{minipage}{.8\footerheight}
+      \qrcode[height=.8\footerheight]{https://www.physik.uni-kl.de/rethfeld/index.php?lang=de&header_size=big}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{.35\paperwidth}
+      %\textbf{License:}\\
+      %Stuff like the logos are probably owned by the RPTU.\\\\
+      \textbf{Kontakt:}\\
+      Arbeitsgruppe für Ultrakurzzeitdynamik \\laserangeregter Festkörper
+      unter Leitung von \\Prof. Bärbel Rethfeld (rethfeld@rptu.de)
+    \end{minipage}
+  }
+  % Footer bottom right. This is supposed to hold references, but you can of course put anything here.
+  {
+    \begin{center}
+    \includegraphics[height=\footerheight]{../programmeintrag_TdP/bild_sw.jpg}
+    \end{center}
+    %References:
+    %\begin{itemize}
+    %  \item https://github.com/Patschke/RPTU-Design
+    %  \item https://rptu.de/intern/brand-portal
+    %  \item https://github.com/RedHatOfficial/RedHatFont
+    %  \item Original baposter by Brian Amberg
+    %\end{itemize}
+  }
+  %
+  % Your content starts from here. 
+  %
+  \begin{posterbox}[name=intro,column=0,row=0]{Numerische Physik}
+
+    Warum benötigt man numerische Physik?
+    \begin{itemize}
+      \item Viele physikalische Probleme können nicht durch einfach lösbare Formeln beschrieben werden.
+      \item Oft existiert die Formel, ist aber nicht geeignet, um die Lösung\\ schnell zu bestimmen.
+    \end{itemize}
+    \vspace{1em}
+    Was ist numerische Physik?
+    \begin{itemize}
+      \item Beschreibung von Problemen durch mathematische Gleichungen 
+      \item Näherungsweise Lösung der Gleichungen mit dem Computer
+      \item Modifikation der Gleichungen unter Berücksichtigung\\ von experimentellen Daten
+      \item Erkenntnisgewinn aus der Auswertung der computergenerierten Daten
+    \end{itemize}
+    \vspace{1em}
+    Wo wird numerische Physik verwendet?
+    \begin{itemize}
+      \item Berechnung der Bahnen von Himmelskörpern und Raketen
+      \item Vorhersagen von Wetter und Klimawandel
+      \item Prognose von Infektionswellen während Epidemien
+      \item und für noch viel mehr!
+    \end{itemize}
+    
+  \end{posterbox}
+
+  \begin{posterbox}[name=newton, below=intro, column=0]{Newtonsches Gravitationsgesetz}
+  \begin{minipage}{.45\textwidth}
+    \large
+  \begin{align*}
+    \myvec{F}_{12} & = G\,\frac{m_1 m_2}{|\myvec{r}_2-\myvec{r}_1|^2}\left(\myvec{r}_2-\myvec{r}_1\right)\\
+    &= -\myvec{F}_{21}
+  \end{align*}
+  \end{minipage}\hfill
+  \begin{minipage}{.45\textwidth}
+    \input{tikz/kepler1.tex} 
+  \end{minipage}
+  \vspace*{2em}
+  \begin{itemize}
+    \item Bereits 1687 von Isaac Newton aufgestellt
+    \item Wirkt auf alle Objekte mit Masse
+    \item 1. Keplersches Gesetz: Die Planeten bewegen sich auf Ellipsen, in deren einem Brennpunkt die Sonne steht
+    \item Gravitationskraft eines Objekts von allen anderen Objekten abhängig \\
+        $\Rightarrow$ andere Planeten ``stören'' die Bahn eines Planeten um die Sonne
+    \item Entdeckung des Planeten Neptuns aufgrund von Berechnungen aus Bahnstörungen des Uranus in 1846
+  \end{itemize}
+  \end{posterbox}
+
+  \begin{posterbox}[below=newton, column=0]{Euler Verfahren}
+    \vspace{-.5cm}
+    \begin{alignat*}{3}
+      t\neu &= t\alt + \Delta t\,, && \myvec{a}_1(t\alt) &&= \frac{\myvec{F}_{12}(t\alt) + \myvec{F}_{13}(t\alt) + \dots}{m_1}\\
+      \Rightarrow~~
+      \myvec{v}_1(t\neu) &= \myvec{a}_1(t\alt) \cdot \Delta t + \myvec{v}_1(t)\,, ~~~~
+      &&\myvec{r}_1(t\neu) &&= \myvec{v}_1(t\alt) \cdot \Delta t + \myvec{r}_1(t)
+    \end{alignat*} 
+    \begin{itemize}
+      \item Erhöhe Zeit schrittweise um $\Delta t$.
+      \item Berechne Ort und Geschwindigkeit aller Objekte zur Zeit $t + \Delta t$ aus den bereits berechneten Werten.
+    \end{itemize}
+  \end{posterbox}
+
+  \begin{posterbox}[name=zeitschritt,column=1,row=0]{Der Zeitschritt}
+    \begin{itemize}
+      \item ist eine der wichtigsten Größen in der numerischen Beschreibung\\ dynamischer Prozesse.
+      \item legt fest, wie oft Ort und Geschwindigkeit neu berechnet werden. 
+      \item bestimmt Genauigkeit der Berechnung:
+      \begin{itemize}
+        \item kleiner Zeitschritt: gute Auflösung, lange Rechendauer
+        \item grosser Zeitschritt: schlechte Auflösung, kurze Rechendauer
+        \item Komplexere Lösungsverfahren erlauben größere Zeitschritte bei akzeptabler Auflösung.
+      \end{itemize}
+      \begin{minipage}{.45\textwidth}
+      \input{tikz/kepler2}
+      \end{minipage}
+      \begin{minipage}{.45\textwidth}
+      Schwarz: exakte Bahn\\
+      {\color{blue} Blau: passabler Zeitschritt}\\
+      {\color{red} Rot: zu großer Zeitschritt}
+      \end{minipage}
+    \end{itemize}
+
+  \end{posterbox}
+
+  \begin{posterbox}[name=outlook, below=zeitschritt, column=1]{Unser Programm}
+    \begin{itemize}
+      \item Programmcode kann von Menschen gelesen werden.
+      \item Computer können ihn verstehen und ausführen.
+      \item Unser Programm besteht aus zwei Teilen: numerischer Berechnung und grafischer Oberfläche.
+    \end{itemize}
+    \vspace*{.75cm}
+            \lstset{language=Fortran,
+                    classoffset=0,
+                    morekeywords={do}, keywordstyle=\color{blue!70!black},
+                    classoffset=1,
+                    morekeywords={sqrt, getMass, getX, getY}, keywordstyle=\color{red},
+                    basicstyle=\footnotesize}
+                  \textbf{Programmcode (Auszug):}
+                    \begin{tcolorbox}
+                \lstinputlisting{../folien/listings/programmauszug.cpp}
+                    \end{tcolorbox}
+                \vspace*{.75cm}
+                \textbf{Grafische Oberfläche:}\\[.3cm]
+                \includegraphics[width=\textwidth]{ui.png}
+  \end{posterbox}
+
+\end{poster}
+\end{document}

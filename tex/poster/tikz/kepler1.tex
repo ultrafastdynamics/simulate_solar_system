@@ -1,0 +1,24 @@
+			\begin{tikzpicture}
+				\coordinate (S) at (1.5,4);
+				\coordinate (P) at (4.5,5.6);
+				\coordinate (C) at (3, 4);
+%				\draw[help lines] (0,0) grid (6,7);
+				\draw[very thick, black] (3,4) ellipse (2.5 and 2.0);
+				\draw[yellow!70!red, line width=3pt, -{Stealth[length=5mm]}] ($(S)!0.05!(P)$) -- ($(S)!0.4!(P)$);
+				\draw[blue, line width=3pt, -{Stealth[length=5mm]}] ($(P)!0.05!(S)$) -- ($(P)!0.3!(S)$);
+				\shade[ball color = yellow!80!red] (S) circle (0.5);
+				\node at (S) {\color{black}\small$m_1$};
+				\shade[ball color = blue] (P) circle (0.25);
+				\node at (P) {\color{white}\small$m_2$};
+				\draw[thick, black] (4.4,3.9) -- (4.6,4.1);
+				\draw[thick, black] (4.4,4.1) -- (4.6,3.9);
+				\draw[thick, black, -{Stealth[length=2mm]}] (3.3,3) -- (4.35,3.85);
+				\draw[thick, black, -{Stealth[length=2mm]}] (2.7,3) -- (1.65,3.85);
+				\node at (3,3) [anchor=north] {\color{black} Brennpunkte};
+				\node at (1.5,4.6) [anchor=south] {\color{black} Sonne};
+				\node at (4.5,6) [anchor=south] {\color{black} Planet};
+				\node at (2.5, 4.9) {\color{yellow!60!red}\small $\myvec{F}_{12}$};
+				\node at (3.5, 5.5) {\color{blue}\small $\myvec{F}_{21}$};
+				\draw[thick, black, -{Stealth[length=2mm]}] (C) -- ($(C)!0.9!(P)$) node [midway, below, yshift=-3pt, xshift=2pt] {$\myvec{r}_{2}$};
+				\draw[thick, black, -{Stealth[length=2mm]}] (C) -- ($(C)!0.8!(S)$) node [midway, below, yshift=-2pt, xshift=2pt] {$\myvec{r}_{1}$};
+			\end{tikzpicture}
