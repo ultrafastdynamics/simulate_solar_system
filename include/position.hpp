@@ -7,6 +7,7 @@ struct Position
 
     double distanceTo(const Position& other) const;
 
+    bool operator ==(const Position& other);
     Position operator +(const Position& other);
     Position operator -(const Position& other);
     Position operator *(double factor);

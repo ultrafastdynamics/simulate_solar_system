@@ -449,9 +449,9 @@ QTObjectArea::QTObjectArea(QWidget* parent)
     verticalHeader()->setVisible(false);
     setHorizontalHeaderLabels({"", "name", "x (km)", "y (km)", "v_x (km/s)", "v_y (km/s)", "mass (kg)"});
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    //QPalette p = QPalette();
-    //p.setColor(QPalette::Base, QColor(17, 17, 17));
-    //setPalette(p);
+    QPalette p = QPalette();
+    p.setColor(QPalette::Base, QColor(255, 255, 255));
+    setPalette(p);
 
     creator_ = new QPushButton("+");
     creator_->setMinimumWidth(20);
@@ -568,7 +568,15 @@ std::vector<Object> QTObjectArea::generateObjects()
         Object* obj = entry->generateObject();
         if(obj)
         {
-            objects.push_back(*obj);
+            bool unique_pos = true;
+            for (auto& other : objects)
+            {
+                if(other.getPosition() == obj->getPosition())
+                {
+                    unique_pos = false;
+                }
+            }
+            if(unique_pos) objects.push_back(*obj);
         }
     }
     return objects;

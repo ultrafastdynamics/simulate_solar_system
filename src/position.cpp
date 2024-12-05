@@ -12,6 +12,11 @@ double Position::distanceTo(const Position& other) const
     return std::sqrt(x_diff * x_diff + y_diff * y_diff);
 }
 
+bool Position::operator==(const Position& rhs)
+{
+    return x_ == rhs.x_ && y_ == rhs.y_;
+}
+
 Position Position::operator+(const Position& rhs)
 {
     return Position(x_ + rhs.x_, y_ + rhs.y_);
