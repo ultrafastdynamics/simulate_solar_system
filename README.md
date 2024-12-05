@@ -1,6 +1,6 @@
 # Simulate a solar system
 
-This program simulates a solar system that you can modify as you wish. It is developed by the [Rethfeld group](https://www.physik.uni-kl.de/rethfeld/) at RPTU, Kaiserslautern, Germany.  
+This program simulates a solar system that you can modify as you wish. It is developed in the [Rethfeld group](https://www.physik.uni-kl.de/rethfeld/) at RPTU, Kaiserslautern, Germany by Markus Uehlein and Tobias Held.  
 It designed for an 1-1.5h workshop for students and used at ["Tag der Physik"](https://www.physik.uni-kl.de/aktuell/veranstaltungen/tag-der-physik).
 As physical basics Newton's law of gravitation and Kepler's laws are helpful.  
 The program itself and the GUI are written in english, everything else in german.
