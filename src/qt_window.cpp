@@ -41,6 +41,7 @@ QTWindow::QTWindow(QWidget *parent)
     QToolBar* toolbar = addToolBar("main toolbar");
     toolbar->setFloatable(false);
     toolbar->setMovable(false);
+    toolbar->setStyleSheet("color: #8B0A0A; font-weight: bold");
     start_ = toolbar->addAction("Start simulation");
     toolbar->addSeparator();
     QAction* reset = toolbar->addAction("Reset settings");
