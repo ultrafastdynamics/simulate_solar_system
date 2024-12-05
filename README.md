@@ -33,5 +33,12 @@ If not, the default image is shown.
 
 ## Licence
 * The program is subject to the GNU GENERAL PUBLIC LICENSE.
-* Both files in the icons directory are licensed under creative common.
-* The program uses a modified version of [QCustomPlot](https://www.qcustomplot.com/) and [QScienceSpinBox](https://www.matthiaspospiech.de/blog/2009/01/03/qt-spinbox-widget-with-scientific-notation/). 
+* All image files are licensed under creative common (links below).
+* The program uses a modified version of [QCustomPlot](https://www.qcustomplot.com/), [QScienceSpinBox](https://www.matthiaspospiech.de/blog/2009/01/03/qt-spinbox-widget-with-scientific-notation/) and [Ubuntu.qss](https://github.com/GTRONICK/QSS/blob/master/Ubuntu.qss). 
+
+### Image links
+* https://commons.wikimedia.org/wiki/File:Bringer_of_War_Planet.png
+* https://commons.wikimedia.org/wiki/File:Sun_in_February_%28transparent%29.png
+* https://www.rawpixel.com/image/4026737/photo-image-background-aesthetic-star
+* https://www.iconfinder.com/icons/186407/arrow_up_icon
+* https://www.iconfinder.com/icons/186411/arrow_down_icon
