@@ -9609,6 +9609,7 @@ void QCPAxis::mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos)
   
   This mouse event reimplementation provides the functionality to let the user zoom individual axes
   exclusively, by performing the wheel event on top of the axis.
+  !!!!!!! Turned of by uehlein. We don't want this for our simulation !!!!!!
 
   For the axis to accept this event and perform the single axis zoom, the parent \ref QCPAxisRect
   must be configured accordingly, i.e. it must allow range zooming in the orientation of this axis
@@ -9622,6 +9623,9 @@ void QCPAxis::mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos)
 */
 void QCPAxis::wheelEvent(QWheelEvent *event)
 {
+    event->ignore();
+    return;
+    /*
   // Mouse range zooming interaction:
   if (!mParentPlot->interactions().testFlag(QCP::iRangeZoom) ||
       !mAxisRect->rangeZoom().testFlag(orientation()) ||
@@ -9647,6 +9651,7 @@ void QCPAxis::wheelEvent(QWheelEvent *event)
   const double factor = qPow(mAxisRect->rangeZoomFactor(orientation()), wheelSteps);
   scaleRange(factor, pixelToCoord(orientation() == Qt::Horizontal ? pos.x() : pos.y()));
   mParentPlot->replot();
+  */
 }
 
 /*! \internal

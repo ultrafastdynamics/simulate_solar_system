@@ -51,8 +51,8 @@ QTWindow::QTWindow(QWidget *parent)
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     toolbar->addWidget(empty);
-    QAction* stop = toolbar->addAction("Pause");
-    QAction* proceed = toolbar->addAction("Continue");
+    pause_ = toolbar->addAction("Pause");
+    pause_->setEnabled(false);
     toolbar->addSeparator();
     toolbar->addWidget(new QLabel("  Updates per second: "));
     toolbar->addWidget(central_widget_->getUpdatesPerSecondBox());
@@ -63,17 +63,20 @@ QTWindow::QTWindow(QWidget *parent)
     connect(show_save, &QShortcut::activated, central_widget_, &QTCentralWidget::toggleSave);
     QShortcut* toggle_grid = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_G), this);
     connect(toggle_grid, &QShortcut::activated, central_widget_, &QTCentralWidget::toggleGrid);
+    short_pause_ = new QShortcut(Qt::Key_Space, this);
+    short_pause_->setEnabled(false);
+    connect(short_pause_, &QShortcut::activated, this, &QTWindow::togglePause);
 
     //connect(darkmode, &QAction::triggered, this, &QTWindow::toggleDarkmode);
     //toggleDarkmode();
 
     // connect(start_, &QAction::triggered, central_widget_, &QTCentralWidget::run);
     connect(start_, &QAction::triggered, this, &QTWindow::run);
-    connect(stop, &QAction::triggered, central_widget_, &QTCentralWidget::stop);
-    connect(proceed, &QAction::triggered, central_widget_, &QTCentralWidget::proceed);
+    connect(pause_, &QAction::triggered, this, &QTWindow::togglePause);
     connect(reset, &QAction::triggered, central_widget_, &QTCentralWidget::resetSettings);
 
     setCentralWidget(central_widget_);
+    central_widget_->setFocus();
 
     //resize(1040, 585);
     showMaximized();
@@ -88,6 +91,22 @@ void QTWindow::run()
 {
     start_->setText("Restart simulation");
     central_widget_->run();
+    pause_->setEnabled(true);
+    short_pause_->setEnabled(true);
+    is_paused_ = false;
+    pause_->setText("Pause");
+}
+
+void QTWindow::togglePause()
+{
+    if(is_paused_){
+        pause_->setText("Pause");
+    }
+    else{
+        pause_->setText("Continue");
+    }
+    is_paused_ = !is_paused_;
+    central_widget_->togglePause(is_paused_);
 }
 
 void QTWindow::toggleDarkmode()
@@ -193,15 +212,21 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     std::string path = std::string(__FILE__).substr(0, std::string(__FILE__).find_last_of("/")) + "/../config";
     std::vector<std::string> files = IOParser::getFilesInDirectory(path);
     config_load_ = new QComboBox(frame1);
+    config_load_->setFocusPolicy( Qt::StrongFocus );
+    config_load_->installEventFilter(this);
     for (auto& file : files) {
         config_load_->addItem(QString::fromStdString(file));
     }
     config_load_->setCurrentText(QString::fromStdString("sun_earth"));
+    connect(config_load_, &QComboBox::currentTextChanged, this, &QTCentralWidget::loadConfig);
 
-    load_button_ = new QPushButton("Load");
-    load_button_->setMinimumWidth(40);
-    load_button_->setMaximumWidth(80);
-    connect(load_button_, &QPushButton::clicked, this, &QTCentralWidget::loadConfig);
+    QPushButton* load_button = new QPushButton("Load"); //to prevent jumping of the save button
+    load_button->setMinimumWidth(40);
+    load_button->setMaximumWidth(80);
+    load_button->setVisible(false);
+    QSizePolicy sp_retain = load_button->sizePolicy();
+    sp_retain.setRetainSizeWhenHidden(true);
+    load_button->setSizePolicy(sp_retain);
 
     save_label_ = new QLabel("Save configuration:", frame1);
     save_label_->setVisible(false);
@@ -215,6 +240,8 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     save_button_->setMaximumWidth(80);
     save_button_->setVisible(false);
     connect(save_button_, &QPushButton::clicked, this, &QTCentralWidget::saveConfig);
+
+    QLabel* remember_label = new QLabel("Don't forget to press 'Restart simulation'!", frame1);
 
     object_area_ = new QTObjectArea(frame1);
     //QFrame* line4 = new QFrame();
@@ -256,10 +283,11 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     left_grid_->addWidget(obj_label, i++, 0, 1, 1);
     left_grid_->addWidget(config_label, i, 0, 1, 1);
     left_grid_->addWidget(config_load_, i, 1, 1, 1);
-    left_grid_->addWidget(load_button_, i++, 2, 1, 1);
+    left_grid_->addWidget(load_button, i++, 2, 1, 1);
     left_grid_->addWidget(save_label_, i, 0, 1, 1);
     left_grid_->addWidget(save_name_, i, 1, 1, 1);
     left_grid_->addWidget(save_button_, i++, 2, 1, 1);
+    left_grid_->addWidget(remember_label, i++, 1, 1, 4);
     left_grid_->addWidget(object_area_, i++, 0, 1, 5);
     //left_grid_->addWidget(line4, i++, 0, 1, 2);
     left_grid_->addWidget(vel_label_, i++, 0, 1, 5);
@@ -285,6 +313,18 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
 
 QTCentralWidget::~QTCentralWidget()
 {
+}
+
+bool QTCentralWidget::eventFilter(QObject *obj, QEvent *e)
+{
+    if(e->type() == QEvent::Wheel)
+    {
+        QComboBox* combo = qobject_cast<QComboBox*>(obj);
+        if(combo && !combo->hasFocus())
+            return true;
+    }
+
+    return false;
 }
 
 void QTCentralWidget::updateFollowObjects(){
@@ -361,6 +401,11 @@ void QTCentralWidget::proceed()
     }
 }
 
+void QTCentralWidget::togglePause(bool is_paused)
+{
+    is_paused ? stop() : proceed();
+}
+
 void QTCentralWidget::resetSettings()
 {
     timestep_box_->setValue(0.001);
@@ -372,6 +417,7 @@ void QTCentralWidget::resetSettings()
     img_size_box_->setValue(8e6);
     object_area_->resetObjects();
     follow_box_->setCurrentIndex(0);
+    plotframe_->setGridVisible();
 }
 
 void QTCentralWidget::loadConfig()

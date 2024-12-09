@@ -5,6 +5,8 @@ It designed for an 1-1.5h workshop for students and used at ["Tag der Physik"](h
 As physical basics Newton's law of gravitation and Kepler's laws are helpful.  
 The program itself and the GUI are written in english, everything else in german.
 
+<img src="readme.png" alt="UI" width="800"/>
+
 ## Installation
 ### Requirements
 The program is written in C++ and therefore requires [gcc](https://gcc.gnu.org/) and [Qt](https://www.qt.io/).  

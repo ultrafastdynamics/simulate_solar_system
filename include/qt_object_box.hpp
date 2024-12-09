@@ -44,7 +44,7 @@ class QTObjectBox : public QFrame
     QTBox* y_{new QTBox(0, 4, -9.9999e9, 9.9999e9)};
     QTBox* v_x_{new QTBox(0, 4, -9.9999e9, 9.9999e9)};
     QTBox* v_y_{new QTBox(0, 4, -9.9999e9, 9.9999e9)};
-    QTBox* mass_{new QTBox(1e22, 3, 0, 9.999e99)};
+    QTBox* mass_{new QTBox(1e22, 3, 0, 9.999e35)};
 
     QHBoxLayout* grid_{};
 };

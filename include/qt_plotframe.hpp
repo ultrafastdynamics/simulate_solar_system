@@ -58,6 +58,7 @@ class QTPlotframe : public QTSquareFrame
     void followObject();
     void setFollowIndex(int index);
     void toggleGrid();
+    void setGridVisible();
 
     QColor background_color_{QColor(255, 255, 255)};
 

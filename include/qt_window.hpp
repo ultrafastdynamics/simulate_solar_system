@@ -32,6 +32,7 @@ class QCPItemPixmap;
 class QTPlotframe;
 class Simulation;
 class Object;
+class QShortcut;
 
 // reimplement DoubleSpinBox to select text on focus
 class MyDoubleSpinBox : public QDoubleSpinBox {
@@ -55,13 +56,16 @@ class QTWindow : public QMainWindow
 
     private slots:
     void run();
+    void togglePause();
     void toggleDarkmode();
 
     private:
     QTCentralWidget* central_widget_;
     bool darkmode_on_{false};
     QAction* start_;
-
+    QAction* pause_;
+    bool is_paused_{false};
+    QShortcut* short_pause_;
 };
 
 class QTCentralWidget : public QWidget
@@ -87,6 +91,7 @@ class QTCentralWidget : public QWidget
     void saveConfig();
     void toggleSave();
     void toggleGrid();
+    void togglePause(bool is_paused);
 
     private:
     void generateSimulation();
@@ -104,12 +109,12 @@ class QTCentralWidget : public QWidget
     MyDoubleSpinBox* timestep_box_;
     QComboBox* follow_box_;
     QComboBox* config_load_;
-    QPushButton* load_button_;
     QLabel* save_label_;
     QLineEdit* save_name_;
     QPushButton* save_button_;
     MyDoubleSpinBox* updates_per_second_box_;
     MyDoubleSpinBox* days_per_update_box_;
+    bool eventFilter(QObject*, QEvent*);
 };
 
 class QTObjectArea : public QTableWidget

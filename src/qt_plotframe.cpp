@@ -323,3 +323,9 @@ void QTPlotframe::toggleGrid()
     plot_->xAxis->grid()->setVisible(visible);
     plot_->yAxis->grid()->setVisible(visible);
 }
+
+void QTPlotframe::setGridVisible()
+{
+    plot_->xAxis->grid()->setVisible(true);
+    plot_->yAxis->grid()->setVisible(true);
+}
