@@ -66,6 +66,8 @@ class QTPlotframe : public QTSquareFrame
 
     void onXRangeChanged(const QCPRange& range); //prevents infinite zoom in
     void onYRangeChanged(const QCPRange& range);
+    void zoom(double factor);
+    void move(double x_factor, double y_factor);
 
     protected :
 

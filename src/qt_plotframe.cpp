@@ -45,6 +45,12 @@ QTPlotframe::QTPlotframe(QWidget *parent)
     plot_->yAxis->setRange(-initial_dimension_, initial_dimension_);
     plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
     setAllColors();
+    connect(new QShortcut(Qt::Key_Plus, this), &QShortcut::activated, this, [&](){zoom(0.9);});
+    connect(new QShortcut(Qt::Key_Minus, this), &QShortcut::activated, this, [&](){zoom(1.1);});
+    connect(new QShortcut(Qt::Key_Up, this), &QShortcut::activated, this, [&](){move(0, 0.1);});
+    connect(new QShortcut(Qt::Key_Down, this), &QShortcut::activated, this, [&](){move(0, -0.1);});
+    connect(new QShortcut(Qt::Key_Left, this), &QShortcut::activated, this, [&](){move(-0.1, 0);});
+    connect(new QShortcut(Qt::Key_Right, this), &QShortcut::activated, this, [&](){move(0.1, 0);});
 
 }
 
@@ -328,4 +334,26 @@ void QTPlotframe::setGridVisible()
 {
     plot_->xAxis->grid()->setVisible(true);
     plot_->yAxis->grid()->setVisible(true);
+}
+
+void QTPlotframe::zoom(double factor)
+{
+    double x_center = plot_->xAxis->range().center();
+    double x_size = plot_->xAxis->range().size() * factor;
+    plot_->xAxis->setRange(x_center-x_size / 2.0, x_center+x_size / 2.0);
+
+    double y_center = plot_->yAxis->range().center();
+    double y_size = plot_->yAxis->range().size() * factor;
+    plot_->yAxis->setRange(y_center-y_size / 2.0, y_center+y_size / 2.0);
+
+    plot_->replot();
+}
+
+void QTPlotframe::move(double x_factor, double y_factor)
+{
+    double x_shift = plot_->xAxis->range().size() * x_factor;
+    double y_shift = plot_->yAxis->range().size() * y_factor;
+    plot_->xAxis->setRange(plot_->xAxis->range().lower + x_shift, plot_->xAxis->range().upper + x_shift);
+    plot_->yAxis->setRange(plot_->yAxis->range().lower + y_shift, plot_->yAxis->range().upper + y_shift);
+    plot_->replot();
 }
