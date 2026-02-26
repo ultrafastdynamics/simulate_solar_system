@@ -412,6 +412,7 @@ void QTCentralWidget::resetSettings()
     days_per_update_box_->setValue(1.);
     updates_per_second_box_->setValue(30.);
     sim_checkbox_->setCurrentText("RK4");
+    config_load_->setCurrentText("sun_earth");
     history_checkbox_->setChecked(false);
     history_checkbox_line_->setChecked(true);
     img_size_box_->setValue(8e6);

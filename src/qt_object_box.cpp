@@ -68,28 +68,28 @@ void QTObjectBox::fill(const QString& text)
         x_->setValue(4.6e7);
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(-5.8986e1);
+        v_y_->setValue(5.8986e1);
         mass_->setValue(3.30e23);
     }
     else if(QString::compare(text, QString("Venus")) == STR_EQUAL){
         x_->setValue(-1.0890e8); 
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(3.4803e1);
+        v_y_->setValue(-3.4803e1);
         mass_->setValue(4.87e24);
     }
     else if(QString::compare(text, QString("Earth")) == STR_EQUAL){
         x_->setValue(1.5214e8);
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(-2.929e1);
+        v_y_->setValue(2.929e1);
         mass_->setValue(5.97e24);
     }
     else if(QString::compare(text, QString("Moon")) == STR_EQUAL){
         x_->setValue(1.5252e8); 
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(-2.827e1);
+        v_y_->setValue(2.827e1);
         mass_->setValue(7.35e22);
     }
     else if(QString::compare(text, QString("Mars")) == STR_EQUAL){
@@ -117,7 +117,7 @@ void QTObjectBox::fill(const QString& text)
         x_->setValue(-3.0014e9); 
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(6.4973e0);
+        v_y_->setValue(-6.4973e0);
         mass_->setValue(8.68e25);
     }
     else if(QString::compare(text, QString("Neptune")) == STR_EQUAL){
@@ -131,7 +131,7 @@ void QTObjectBox::fill(const QString& text)
         x_->setValue(7.38e9);
         y_->setValue(0);
         v_x_->setValue(0);
-        v_y_->setValue(-3.67e0);
+        v_y_->setValue(3.67e0);
         mass_->setValue(1.3e22);
     }
 }
