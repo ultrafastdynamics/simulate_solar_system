@@ -29,7 +29,7 @@ The most successful way to install the requirements is to install the Linux subs
 ### Object pictures
 Due to copyright issues there is only a sun and a default planet image uploaded to github.
 You can easily use more pictures if you add them to the icons directory. All <code>.png</code> files can be shown in the GUI.
-Just name the object after the file. Underscores and numbers will be ignored. E.g.: An Object with name <code>Sun_2</code> will show the picture of <code>icons/Sun.png</code> if it exists.
+Just name the object after the file. Underscores and numbers will be ignored. The filename has to be lower case. E.g.: An Object with name <code>Sun_2</code> will show the picture of <code>icons/sun.png</code> if it exists.
 If not, the default image is shown.
 
 
