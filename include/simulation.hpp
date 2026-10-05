@@ -24,6 +24,10 @@ class Simulation
 
     std::vector<double> getState() const;
 
+    // Positionen aller Zeitschritte (ausgedünnt) seit dem letzten runTillNextSave().
+    // Flach: pro Sample x0,y0,x1,y1,... in Metern
+    const std::vector<double>& getTrajectory() const;
+
     protected :
 
     virtual void doTimestep() = 0;
@@ -48,4 +52,6 @@ class Simulation
 
     double kepler2_area_{0};
     Position kepler2_old_position_planet_{};
+
+    std::vector<double> trajectory_;
 };

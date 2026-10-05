@@ -42,21 +42,19 @@ QTWindow::QTWindow(QWidget *parent)
     toolbar->setFloatable(false);
     toolbar->setMovable(false);
     toolbar->setStyleSheet("color: #8B0A0A; font-weight: bold");
-    start_ = toolbar->addAction("Start simulation");
-    toolbar->addSeparator();
     QAction* reset = toolbar->addAction("Reset settings");
-    //toolbar->addSeparator();
-    //QAction* darkmode = toolbar->addAction("Darkmode");
-    //QAction* quit = toolbar->addAction("Quit Application");
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     toolbar->addWidget(empty);
-    pause_ = toolbar->addAction("Pause");
-    pause_->setEnabled(false);
+    start_ = toolbar->addAction("Start");
     toolbar->addSeparator();
-    toolbar->addWidget(new QLabel("  Updates per second: "));
-    toolbar->addWidget(central_widget_->getUpdatesPerSecondBox());
-    toolbar->addWidget(new QLabel("     Days per update: "));
+    restart_ = toolbar->addAction("Restart");
+    restart_->setEnabled(false);
+    toolbar->addSeparator();
+    //toolbar->addSeparator();
+    //QAction* darkmode = toolbar->addAction("Darkmode");
+    //QAction* quit = toolbar->addAction("Quit Application");
+    toolbar->addWidget(new QLabel("     Simulation speed: "));
     toolbar->addWidget(central_widget_->getDaysPerUpdateBox());
 
     QShortcut* show_save = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
@@ -64,16 +62,26 @@ QTWindow::QTWindow(QWidget *parent)
     QShortcut* toggle_grid = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_G), this);
     connect(toggle_grid, &QShortcut::activated, central_widget_, &QTCentralWidget::toggleGrid);
     short_pause_ = new QShortcut(Qt::Key_Space, this);
-    short_pause_->setEnabled(false);
-    connect(short_pause_, &QShortcut::activated, this, &QTWindow::togglePause);
+    connect(short_pause_, &QShortcut::activated, this, &QTWindow::onStartPause);
 
     //connect(darkmode, &QAction::triggered, this, &QTWindow::toggleDarkmode);
     //toggleDarkmode();
 
     // connect(start_, &QAction::triggered, central_widget_, &QTCentralWidget::run);
-    connect(start_, &QAction::triggered, this, &QTWindow::run);
-    connect(pause_, &QAction::triggered, this, &QTWindow::togglePause);
+    connect(start_, &QAction::triggered, this, &QTWindow::onStartPause);
     connect(reset, &QAction::triggered, central_widget_, &QTCentralWidget::resetSettings);
+    connect(central_widget_->plotframe_, &QTPlotframe::historyScrolled, this, [this]() {
+        if(sim_active_ && !is_paused_)
+        {
+            togglePause();   // setzt auch den Button-Text auf "Continue"
+        }
+    });
+    connect(central_widget_, &QTCentralWidget::simulationAborted, this, [this]() {
+        sim_active_ = false;
+        is_paused_ = false;
+        updateStartButton();
+    });
+    connect(restart_, &QAction::triggered, this, &QTWindow::run);
 
     setCentralWidget(central_widget_);
     central_widget_->setFocus();
@@ -87,26 +95,44 @@ QTWindow::~QTWindow()
     delete central_widget_;
 }
 
+void QTWindow::onStartPause()
+{
+    if(sim_active_)
+    {
+        togglePause();
+    }
+    else
+    {
+        run();
+    }
+}
+
 void QTWindow::run()
 {
-    start_->setText("Restart simulation");
     central_widget_->run();
-    pause_->setEnabled(true);
-    short_pause_->setEnabled(true);
+    sim_active_ = true;
     is_paused_ = false;
-    pause_->setText("Pause");
+    updateStartButton();
 }
 
 void QTWindow::togglePause()
 {
-    if(is_paused_){
-        pause_->setText("Pause");
-    }
-    else{
-        pause_->setText("Continue");
-    }
     is_paused_ = !is_paused_;
     central_widget_->togglePause(is_paused_);
+    updateStartButton();
+}
+
+void QTWindow::updateStartButton()
+{
+    if(!sim_active_)
+    {
+        start_->setText("Start");
+    }
+    else
+    {
+        start_->setText(is_paused_ ? "Continue" : "Pause");
+    }
+    restart_->setEnabled(sim_active_);
 }
 
 void QTWindow::toggleDarkmode()
@@ -121,7 +147,7 @@ void QTWindow::toggleDarkmode()
     }
     setStyleSheet("background:darkGray; color:black");
     central_widget_->plotframe_->useDarkmode(true);
-    central_widget_->vel_label_->setText("Velocities (time in days, v in km/s, v_x in cyan, v_y in purple):");
+    central_widget_->vel_label_->setText("Velocities (time in days, v in km/s, v_QAction* restart_x in cyan, v_y in purple):");
     darkmode_on_ = true;
 }
 
@@ -151,21 +177,13 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     timestep_box_->setSingleStep(0.001);
     timestep_box_->setFixedWidth(200);
 
-    updates_per_second_box_ = new MyDoubleSpinBox();
-    updates_per_second_box_->setMaximum(60);
-    updates_per_second_box_->setMinimum(0.2);
-    updates_per_second_box_->setDecimals(1);
-    updates_per_second_box_->setValue(30);
-    updates_per_second_box_->setSingleStep(5);
-    updates_per_second_box_->setFixedWidth(80);
-
     days_per_update_box_ = new MyDoubleSpinBox();
     days_per_update_box_->setMaximum(999);
-    days_per_update_box_->setMinimum(0.0001);
-    days_per_update_box_->setDecimals(4);
-    days_per_update_box_->setValue(1);
+    days_per_update_box_->setMinimum(0.1);
+    days_per_update_box_->setDecimals(1);
+    days_per_update_box_->setValue(35);
     days_per_update_box_->setSingleStep(1);
-    days_per_update_box_->setFixedWidth(80);
+    days_per_update_box_->setFixedWidth(65);
 
     QLabel* sim_label = new QLabel("Solver:", frame1);
 
@@ -184,15 +202,8 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     QLabel* feature_label = new QLabel("Graphical settings:", frame1);
     feature_label->setStyleSheet("font-weight: bold; color: #113680");
 
-    QLabel* checkbox_label = new QLabel("Show object trajectories as:", frame1);
-    history_checkbox_ = new QCheckBox("circles", frame1);
-    history_checkbox_->setChecked(false);
-
-    history_checkbox_line_ = new QCheckBox("lines", frame1);
+    history_checkbox_line_ = new QCheckBox("Show object trajectories", frame1);
     history_checkbox_line_->setChecked(true);
-
-    QLabel* img_size_label = new QLabel("Planet image radius (in km):", frame1);
-    img_size_box_ = new QTBox(8e6, 8, 0, 1e12, this);
 
     QLabel* follow_label = new QLabel("Follow object:", frame1);
     follow_box_ = new QComboBox(frame1);
@@ -241,7 +252,7 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     save_button_->setVisible(false);
     connect(save_button_, &QPushButton::clicked, this, &QTCentralWidget::saveConfig);
 
-    QLabel* remember_label = new QLabel("Don't forget to press 'Restart simulation'!", frame1);
+    QLabel* remember_label = new QLabel("Changes here directly start a new simulation!", frame1);
 
     object_area_ = new QTObjectArea(frame1);
     //QFrame* line4 = new QFrame();
@@ -270,13 +281,7 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     left_grid_->addWidget(sim_checkbox_, i++, 1, 1, 1);
     left_grid_->addWidget(line2, i++, 0, 1, 5);
     left_grid_->addWidget(feature_label, i++, 0, 1, 1);
-    left_grid_->addWidget(checkbox_label, i, 0, 1, 1);
-    QGridLayout* layout = new QGridLayout();
-    layout->addWidget(history_checkbox_, 0, 0);
-    layout->addWidget(history_checkbox_line_, 0, 1);
-    left_grid_->addLayout(layout, i++, 1, 1, 1);
-    left_grid_->addWidget(img_size_label, i, 0, 1, 1);
-    left_grid_->addWidget(img_size_box_, i++, 1, 1, 1);
+    left_grid_->addWidget(history_checkbox_line_, i++, 1, 1, 1);
     left_grid_->addWidget(follow_label, i, 0, 1, 1);
     left_grid_->addWidget(follow_box_, i++, 1, 1, 1);
     left_grid_->addWidget(line5, i++, 0, 1, 5);
@@ -309,6 +314,14 @@ QTCentralWidget::QTCentralWidget(QWidget *parent)
     //frame_grid->addWidget(frame1, 0, 0, 1, 7);
     //frame_grid->addWidget(plotframe_, 0, 7, 1, 8);
     setLayout(frame_grid);
+
+    preview_timer_ = new QTimer(this);
+    preview_timer_->setSingleShot(true);
+    connect(preview_timer_, &QTimer::timeout, this, &QTCentralWidget::showPreview);
+    connect(object_area_, &QTObjectArea::objectsChanged, this, &QTCentralWidget::onObjectsChanged);
+    preview_timer_->start(0);   // Vorschau schon für die Startkonfiguration
+    connect(timestep_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &QTCentralWidget::onObjectsChanged);
+    connect(sim_checkbox_, &QComboBox::currentTextChanged, this, &QTCentralWidget::onObjectsChanged);
 }
 
 QTCentralWidget::~QTCentralWidget()
@@ -361,11 +374,6 @@ QDoubleSpinBox* QTCentralWidget::getDaysPerUpdateBox()
     return days_per_update_box_;
 }
 
-QDoubleSpinBox* QTCentralWidget::getUpdatesPerSecondBox()
-{
-    return updates_per_second_box_;
-}
-
 void QTCentralWidget::run()
 {
     generateSimulation();
@@ -375,13 +383,11 @@ void QTCentralWidget::run()
 
 void QTCentralWidget::updatePlot()
 {
-    simulation_->setDaysBetweenSaves(days_per_update_box_->value());
+    simulation_->setDaysBetweenSaves(days_per_update_box_->value()*ms_per_update_/1000.);
     simulation_->runTillNextSave();
     plotframe_->setFollowIndex(follow_box_->currentIndex()-1); // "don't follow" is at index 0
-    plotframe_->update(simulation_->getState());
-    plotframe_->showTrajectories(history_checkbox_->isChecked());
+    plotframe_->update(simulation_->getState(), simulation_->getTrajectory());
     plotframe_->showTrajectoryLines(history_checkbox_line_->isChecked());
-    plotframe_->setPlanetRadius(img_size_box_->value());
     updateTimer();
 }
 
@@ -409,13 +415,10 @@ void QTCentralWidget::togglePause(bool is_paused)
 void QTCentralWidget::resetSettings()
 {
     timestep_box_->setValue(0.001);
-    days_per_update_box_->setValue(1.);
-    updates_per_second_box_->setValue(30.);
+    days_per_update_box_->setValue(35.);
     sim_checkbox_->setCurrentText("RK4");
     config_load_->setCurrentText("sun_earth");
-    history_checkbox_->setChecked(false);
     history_checkbox_line_->setChecked(true);
-    img_size_box_->setValue(8e6);
     object_area_->resetObjects();
     follow_box_->setCurrentIndex(0);
     plotframe_->setGridVisible();
@@ -442,17 +445,11 @@ void QTCentralWidget::saveConfig()
 
 void QTCentralWidget::updateTimer()
 {
-    double ms_per_update = 1000. / std::min(updates_per_second_box_->value(), 60.);
-    // ms_per_update = std::max(ms_per_update, 0.01);
-    if(ms_per_update != ms_per_update_)
-    {
-        ms_per_update_ = ms_per_update;
-        plot_update_timer_->stop();
-        plot_update_timer_->start(ms_per_update_);
-    }
+    plot_update_timer_->stop();
+    plot_update_timer_->start(ms_per_update_);
 }
 
-void QTCentralWidget::generateSimulation()
+std::vector<Object> QTCentralWidget::rebuildScene()
 {
     auto& vel_plots = plotframe_->getVelocityPlots();
     for(uint i=0; i<vel_plots.size(); i++)
@@ -473,6 +470,14 @@ void QTCentralWidget::generateSimulation()
         vel_grid_->addWidget(new QLabel(QString::fromStdString(names[i]+":")), 2*i, 0, 1, 1);
         vel_grid_->addWidget(vel_plots[i], 2*i+1, 0, 1, 1);
     }
+    return objects;
+}
+
+void QTCentralWidget::generateSimulation()
+{
+    std::vector<Object> objects = rebuildScene();
+    plotframe_->showObjects(objects);   // Objekte bleiben bis zum ersten Update sichtbar
+
     if(QString::compare(sim_checkbox_->currentText(), QString("RK4")) == STR_EQUAL)
     {
         simulation_ = std::make_unique<SimulationRK4>(objects);
@@ -482,6 +487,29 @@ void QTCentralWidget::generateSimulation()
         simulation_ = std::make_unique<SimulationEuler>(objects);
     }
     simulation_->setTimestepInDays(timestep_box_->value());
+}
+
+void QTCentralWidget::onObjectsChanged()
+{
+    if(simulation_)
+    {
+        plot_update_timer_->stop();
+        simulation_.reset();
+        emit simulationAborted();
+    }
+    preview_timer_->start(150);
+}
+
+void QTCentralWidget::showPreview()
+{
+    if(simulation_)   // inzwischen wurde neu gestartet
+    {
+        return;
+    }
+    std::vector<Object> objects = rebuildScene();
+    plotframe_->setFollowIndex(-1);
+    plotframe_->showObjects(objects);
+    updateFollowObjects();
 }
 
 /***************************************
@@ -597,14 +625,16 @@ void QTObjectArea::createEntry()
     insertRow(current_row_);
     uint i=0;
     setCellWidget(current_row_, i++, del_button);
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::NAME));
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::X));
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::Y));
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::V_X));
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::V_Y));
-    setCellWidget(current_row_, i++, object_box->getBox(QTObjectBox::MASS));
 
+    for(auto type : {QTObjectBox::NAME, QTObjectBox::X, QTObjectBox::Y,
+                     QTObjectBox::V_X, QTObjectBox::V_Y, QTObjectBox::MASS})
+    {
+        QWidget* box = object_box->getBox(type);
+        setCellWidget(current_row_, i++, box);
+        watchEdits(box);
+    }
     current_row_++;
+    emit objectsChanged();
 }
 
 std::vector<Object> QTObjectArea::generateObjects()
@@ -641,4 +671,18 @@ void QTObjectArea::removeEntry(uint id)
     entries_.erase(entries_.begin()+row_idx);
 
     current_row_--;
+    emit objectsChanged();
+}
+
+void QTObjectArea::watchEdits(QWidget* widget)
+{
+    if(auto* edit = qobject_cast<QLineEdit*>(widget))
+    {
+        connect(edit, &QLineEdit::textChanged, this, &QTObjectArea::objectsChanged);
+    }
+    else if(auto* spin = qobject_cast<QDoubleSpinBox*>(widget))
+    {
+        connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                this, &QTObjectArea::objectsChanged);
+    }
 }

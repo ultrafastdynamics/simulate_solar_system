@@ -3,13 +3,13 @@
 #include <vector>
 #include <string>
 #include <QWidget>
+#include <QFrame>
 #include <QPixmap>
 #include <QString>
 #include <QColor>
 #include <QVector>
 #include <QDir>
 #include <fstream>
-#include "qt_square_frame.hpp"
 
 class QCustomPlot;
 class QColor;
@@ -20,7 +20,7 @@ class QCPItemText;
 class QCPRange;
 class Object;
 
-class QTPlotframe : public QTSquareFrame
+class QTPlotframe : public QFrame
 {
 
     Q_OBJECT
@@ -33,11 +33,9 @@ class QTPlotframe : public QTSquareFrame
 
     const std::vector<QCustomPlot*>& getVelocityPlots();
 
-    void update(const std::vector<double>& state);
+    void update(const std::vector<double>& state, const std::vector<double>& trajectory);
 
     void addObjects(const std::vector<Object>& objects);
-
-    void setPlanetRadius(double radius);
 
     void setStepsPerTrajectoryUpdate(unsigned int steps);
 
@@ -46,8 +44,6 @@ class QTPlotframe : public QTSquareFrame
     void clear();
 
     void clearTrajectories();
-
-    void showTrajectories(bool show);
 
     void showTrajectoryLines(bool show);
 
@@ -59,6 +55,7 @@ class QTPlotframe : public QTSquareFrame
     void setFollowIndex(int index);
     void toggleGrid();
     void setGridVisible();
+    void showObjects(const std::vector<Object>& objects);
 
     QColor background_color_{QColor(255, 255, 255)};
 
@@ -79,6 +76,8 @@ class QTPlotframe : public QTSquareFrame
 
     void setAllColors();
 
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
     // QString getIconDir();
     QDir getIconDir();
 
@@ -93,13 +92,37 @@ class QTPlotframe : public QTSquareFrame
     std::vector<QVector<double>> y_{};
     std::vector<QVector<double>> v_x_;
     std::vector<QVector<double>> v_y_;
-    std::vector<QCPCurve*> curves_;
+    std::vector<QCPCurve*> line_curves_;
+    std::vector<QVector<double>> traj_x_, traj_y_;
+    std::vector<int> traj_end_;
+    bool curves_dirty_ = false;
     std::vector<QCustomPlot*> velocity_plots_{};
     std::ifstream results_;
     double initial_dimension_{1e8};
-    double planet_radius_{8e6};
     QColor v_x_color_{Qt::blue};
     QColor v_y_color_{Qt::red};
     QColor tick_color_{Qt::black};
     int follow_index_{-1};
+
+    private:
+    void keepAspectRatio(const QSize& plot_size);
+    int  currentIndex() const;            // angezeigter Zeitindex
+    void scrollHistory(int steps_back);
+    void showHistoryState(int index);
+
+    int    view_index_  = -1;             // -1 = live (neuester Zustand)
+    double wheel_accum_ = 0.;
+    bool   auto_fit_ = true;     // Gesamtansicht folgt der Fenstergröße
+    QSizeF last_inner_size_;     // Größe des Achsenrechtecks beim letzten Anpassen
+    
+    double imageRadius() const;
+    void updateImageSizes();
+    void placeImage(QCPItemPixmap* item, double x, double y, double r);
+
+    const double image_fraction_ = 0.03;   // Bildradius als Anteil des kleineren sichtbaren Achsenbereichs
+    const double min_radius_     = 1e4;    // km, Untergrenze
+    const double max_radius_     = 5e7;    // km, Untergrenze
+    
+    signals:
+    void historyScrolled();   // Nutzer scrollt gerade durch die Vergangenheit
 };

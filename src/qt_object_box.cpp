@@ -134,6 +134,13 @@ void QTObjectBox::fill(const QString& text)
         v_y_->setValue(3.67e0);
         mass_->setValue(1.3e22);
     }
+    else if(QString::compare(text, QString("Tesla")) == STR_EQUAL){
+        x_->setValue(1.55e8);
+        y_->setValue(0);
+        v_x_->setValue(0);
+        v_y_->setValue(3.33e1);
+        mass_->setValue(1.3e3);
+    }
 }
 
 void QTObjectBox::fill_all(std::string content)

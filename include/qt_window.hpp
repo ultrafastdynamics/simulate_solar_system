@@ -63,9 +63,12 @@ class QTWindow : public QMainWindow
     QTCentralWidget* central_widget_;
     bool darkmode_on_{false};
     QAction* start_;
-    QAction* pause_;
+    QAction* restart_;
     bool is_paused_{false};
+    bool sim_active_ = false;
     QShortcut* short_pause_;
+    void onStartPause();
+    void updateStartButton();
 };
 
 class QTCentralWidget : public QWidget
@@ -78,7 +81,6 @@ class QTCentralWidget : public QWidget
 
     void run();
     QDoubleSpinBox* getDaysPerUpdateBox();
-    QDoubleSpinBox* getUpdatesPerSecondBox();
     QTPlotframe* plotframe_;
     QLabel* vel_label_;
 
@@ -92,18 +94,18 @@ class QTCentralWidget : public QWidget
     void toggleSave();
     void toggleGrid();
     void togglePause(bool is_paused);
+    void onObjectsChanged();
+    void showPreview();
 
     private:
     void generateSimulation();
     void updateTimer();
     void updateFollowObjects();
     std::unique_ptr<Simulation> simulation_;
-    double ms_per_update_{100};
+    double ms_per_update_{20};
     QTimer* plot_update_timer_{};
     QTObjectArea* object_area_;
-    QCheckBox* history_checkbox_;
     QCheckBox* history_checkbox_line_;
-    QScienceSpinBox* img_size_box_;
     QGridLayout* vel_grid_;
     QComboBox* sim_checkbox_;
     MyDoubleSpinBox* timestep_box_;
@@ -112,9 +114,13 @@ class QTCentralWidget : public QWidget
     QLabel* save_label_;
     QLineEdit* save_name_;
     QPushButton* save_button_;
-    MyDoubleSpinBox* updates_per_second_box_;
     MyDoubleSpinBox* days_per_update_box_;
+    QTimer* preview_timer_ = nullptr;
+    std::vector<Object> rebuildScene();
     bool eventFilter(QObject*, QEvent*);
+
+    signals:
+    void simulationAborted();
 };
 
 class QTObjectArea : public QTableWidget
@@ -135,6 +141,7 @@ class QTObjectArea : public QTableWidget
     private:
     void createInitialObjects();
     void removeEntry(uint id);
+    void watchEdits(QWidget* widget);
     // void fillBoxes(uint id, QString text);
     static uint getID(){static uint id=0; return id++;};
     std::vector<QTObjectBox*> entries_;
@@ -142,4 +149,7 @@ class QTObjectArea : public QTableWidget
     uint current_row_{0};
     QPushButton* creator_{};
     std::vector<uint> ids_;
+    
+    signals:
+    void objectsChanged(); 
 };

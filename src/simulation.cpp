@@ -27,15 +27,33 @@ Simulation::Simulation(const std::vector<Object>& objects)
 {
 }
 
+static const int max_trajectory_points_per_save = 25;
+
 void Simulation::runTillNextSave()
 {
     kepler2_area_ = 0;
+    trajectory_.clear();
+    const int stride = std::max(steps_between_saves_ / max_trajectory_points_per_save, 1);
     for(int i = 0; i < steps_between_saves_; i++)
     {
         doTimestep();
         calculateKepler2();
         current_time_ += timestep_;
+        // Der letzte Schritt wird immer aufgenommen, damit die Linie am Planeten endet
+        if((i + 1) % stride == 0 || i == steps_between_saves_ - 1)
+        {
+            for(const auto& o : objects_)
+            {
+                trajectory_.push_back(o.getX());
+                trajectory_.push_back(o.getY());
+            }
+        }
     }
+}
+
+const std::vector<double>& Simulation::getTrajectory() const
+{
+    return trajectory_;
 }
 
 void Simulation::setTimestep(double timestep)
